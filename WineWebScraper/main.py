@@ -22,24 +22,15 @@ db = conn.database
 collection = db.cava_wine_list
 
 # Increments the page number to scrape
-page_number = 0
+page_number = 1
 
 # Prompts user to enter the wine.com url to scrape
 address = input("Enter wine.com URL: ").strip()
 req = requests.head(address)
 code = req.status_code
 
-wine_type = address.split("/")[-2]
-# Path name where the images for this search will be stored
-dir_name = ("./images/" + wine_type.replace("-", "_").lower())
-
-# If that dir does not exist, creates it.
-if not os.path.isdir(dir_name):
-    os.mkdir(dir_name)
-
 while code is 200:
     page_to_pull = address + "/" + str(page_number)
-    print(wine_type)
 
     req = requests.get(page_to_pull)
 
@@ -51,10 +42,20 @@ while code is 200:
         wine_id = wine.find("meta")['content']
         wine_vintage = wine_text[-4:]
         wine_varietal_text = wine.find("span", {"class": "prodItemInfo_varietal"}).text
+
+        try:
+            # Path name where the images for this search will be stored
+            dir_name = ("./images/" + wine_varietal_text.replace(" ", "_").replace("/", "_").lower())
+            # If that dir does not exist, creates it.
+            if not os.path.isdir(dir_name):
+                os.mkdir(dir_name)
+        except FileNotFoundError as e:
+            print(e)
+
         wine_origin = wine.find("span", {"class": "prodItemInfo_originText"}).text
         wine_img_element = wine.find('img')
         wine_img = ("https://www.wine.com/" + wine_img_element.get('src'))
-        wine_img_path = ("./" + dir_name + "/" + wine_text.replace(" ", "_") + ".jpg")
+        wine_img_path = (dir_name + "/" + wine_text.replace(" ", "_") + "_label.jpg")
         urllib.request.urlretrieve(wine_img, wine_img_path)
 
         try:
@@ -64,7 +65,7 @@ while code is 200:
                     "varietal": wine_varietal_text,
                     "origin": wine_origin,
                     "label_image": wine_img_path}
-            rec_id = collection.insert_one(wine)
+            rec_id = collection.insert_one(wine).inserted_id
             print("Data inserted with record id", rec_id)
         except Exception as e:
             print("Error: ", e)
