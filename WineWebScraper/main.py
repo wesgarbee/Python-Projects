@@ -27,7 +27,7 @@ collection.create_index([("wine_id", 1)], unique=True)
 # Checks if txt file for saving page exists
 if not os.path.exists('page_progress.txt'):
     with open('page_progress.txt', 'w') as file:
-        file.write('11')
+        file.write('1')
 
 with open('page_progress.txt', 'r') as file:
     data = file.read()
@@ -49,10 +49,10 @@ while code is 200:
     wines = soup.findAll("li", {"class": "prodItem"})
 
     for wine in wines:
-        wine_is_wine = not wine.find("div", {"class": "prodItemInfo_origin js-is-hidden"})
+        object_is_wine = not wine.find("div", {"class": "prodItemInfo_origin js-is-hidden"})
 
         # This checks that the wine isn't a gift set or collection
-        if wine_is_wine:
+        if object_is_wine:
             # Get the name of the wine
             wine_text = wine.find("span", {"class": "prodItemInfo_name"}).text
 
