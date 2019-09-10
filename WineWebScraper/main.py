@@ -49,15 +49,13 @@ while code is 200:
     wines = soup.findAll("li", {"class": "prodItem"})
 
     for wine in wines:
-        object_is_wine = not wine.find("div", {"class": "prodItemInfo_origin js-is-hidden"})
-
         # This checks that the wine isn't a gift set or collection
-        if object_is_wine:
-            # Get the name of the wine
+        if not wine.find("div", {"class": "prodItemInfo_origin js-is-hidden"}):
+            # Gets the line of text for the name and vintage
             wine_text = wine.find("span", {"class": "prodItemInfo_name"}).text
 
             # Gets the id from wine.com for later use
-            wine_id = wine.find("meta")['content']
+            wine_id = int(wine.find("meta")['content'])
 
             # Gets the wine vintage, if no vintage, sets 0 which will output 'NV' later on
             wine_vintage = wine_text[-4:]
@@ -66,6 +64,19 @@ while code is 200:
             except ValueError:
                 wine_vintage = 0
 
+            # If there is a vintage for the wine, removes the vintage from the end.
+            # Else the wine name is the wine_text
+            if wine_vintage is not 0:
+                wine_name = wine_text[:-4].strip()
+            else:
+                wine_name = wine_text
+
+            # Gets all of the ratings for the wine
+            wine_ratings_elements = wine.find_all("li", {"class": "wineRatings_listItem"})
+            wine_ratings = []
+            for wre in wine_ratings_elements:
+                wine_ratings.append(wre['title'])
+
             # Get the varietal/blend
             wine_varietal_text = wine.find("span", {"class": "prodItemInfo_varietal"}).text
 
@@ -73,6 +84,7 @@ while code is 200:
             try:
                 wine_color = wine.find("li", {"class": "prodAttr_icon"})['title']
             except TypeError:
+                # This stores the wine varietal from the data as there is now attrs 'title' for these
                 if (wine_varietal_text == "Other Dessert") or \
                         (wine_varietal_text == "Sherry") or \
                         (wine_varietal_text == "Port"):
@@ -95,9 +107,10 @@ while code is 200:
             urllib.request.urlretrieve(wine_img, wine_img_path)
 
             try:
-                wine = {"name": wine_text[:-4].strip(),
+                wine = {"name": wine_name,
                         "wine_id": wine_id,
                         "vintage": wine_vintage,
+                        "ratings": wine_ratings,
                         "varietal": wine_varietal_text,
                         "color": wine_color,
                         "origin": wine_origin,
