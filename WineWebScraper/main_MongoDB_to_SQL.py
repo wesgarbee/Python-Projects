@@ -1,10 +1,8 @@
-import os
+# Script written to import documents from MongoDB to SQL Server
+
 import time
-import urllib.request
-import requests
 import pypyodbc as pyodbc
 from pymongo import MongoClient
-from bs4 import BeautifulSoup as bSoup
 
 
 # Establish connection with SQL Server
