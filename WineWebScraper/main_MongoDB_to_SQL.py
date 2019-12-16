@@ -1,6 +1,7 @@
 # Script written to import documents from MongoDB to SQL Server
 
 import time
+from pprint import pprint
 import pypyodbc as pyodbc
 from pymongo import MongoClient
 
@@ -37,13 +38,13 @@ wines = collection.find()
 for wine in wines:
     try:
         cursor.execute("INSERT INTO dbo.Wines "
-                       "(name, wine_id, vintage, varietal, color, origin, label_image) "
+                       "(Name, wine_id, Vintage, varietal, color, CountryOfOrigin, ImageURL) "
                        "VALUES (?, ?, ?, ?, ?, ?, ?)",
                        (wine['name'], wine['wine_id'], wine['vintage'], wine['varietal'],
                         wine['color'], wine['origin'], wine['label_image']))
-        sql_wine_id = cursor.execute("SELECT @@Identity").fetchone()
         cursor.commit()
-        print("SQL wine ID:", str(sql_wine_id))
+        # cursor.execute("INSERT INTO dbo.WineRatings")
+        print("SQL wine ID:", wine['wine_id'])
 
         count += 1
         if count % 100 == 0:
@@ -52,13 +53,3 @@ for wine in wines:
         print(wine['wine_id'], "already exists in the DB")
     except Exception as e:
         print(wine['name'])
-
-# first = collection.find()
-#
-# cursor.execute("INSERT INTO dbo.Wines "
-#                "(name, wine_id, vintage, varietal, color, origin, label_image) "
-#                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-#                (first[0]['name'], first[0]['wine_id'], first[0]['vintage'], first[0]['varietal'],
-#                 first[0]['color'], first[0]['origin'], first[0]['label_image']))
-#
-# cursor.commit()
