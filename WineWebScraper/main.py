@@ -33,6 +33,7 @@ def service_function():
     req = requests.head(address)
     code = req.status_code
 
+    # Select which db to persist to- commented out to as MongoDB is being deprecated for this task
     # print("Select which db to add to")
     # print("1. SQL Server")
     # print("2. MongoDB")
@@ -261,7 +262,6 @@ def service_function():
 
             soup = bSoup(req.text, "html.parser")
             wines = soup.findAll("li", {"class": "prodItem"})
-
             for wine in wines:
                 # This checks that the wine isn't a gift set or collection
                 if not wine.find("div", {"class": "prodItemInfo_origin js-is-hidden"}):
