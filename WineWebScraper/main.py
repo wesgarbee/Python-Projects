@@ -79,7 +79,7 @@ def service_function():
                         # Gets the id from wine.com for later use
                         wine_id = int(wine.find("meta")['content'])
 
-                        # Gets the wine vintage, if no vintage, sets 0 which will output 'NV' later on
+                        # Gets the wine vintage. If no vintage, sets 0 which will output 'NV' later on
                         wine_vintage = wine_text[-4:]
                         try:
                             wine_vintage = int(wine_vintage)
@@ -99,7 +99,6 @@ def service_function():
                             wine_ratings_elements = wine.find_all("li", {"class": "wineRatings_listItem"})
                             if wine_ratings_elements:
                                 for wre in wine_ratings_elements:
-                                    individual_rating = []
                                     rating = wre['title']  # Gets the string of the rating from the element
                                     rater = rating.rsplit(' ', 3)[0].strip()  # Strips the points value
                                     rating_value = re.search(r'\d+', rating).group()  # Grabs point value from the string
@@ -154,11 +153,11 @@ def service_function():
                             wine_sql_id = cursor.fetchone()[0]
 
                             # Prints the inserted ID
-                            print(color.OKBLUE + color.BOLD + "\t\t\t" + wine_name + " inserted with SQL id "
+                            print("\t\t\t" + color.OKMAGENTA + str(wine_vintage) + " " + color.OKBLUE + color.BOLD + wine_name + " inserted with SQL id "
                                   + color.FAIL + str(wine_sql_id) + color.ENDC)
                             # Increments count of number of entries added to the db
                             added_to_SQL_db += 1
-                        except pyodbc.IntegrityError as e:
+                        except pyodbc.IntegrityError:
                             print("Wine ID", color.BOLD + color.OKBLUE + str(wine_id) + color.ENDC,
                                   "already exists in the SQL DB")
 
@@ -173,7 +172,7 @@ def service_function():
                                     cursor.commit()
                                     print(color.OKGREEN + color.BOLD + "\t\t\tRating inserted with SQL ID "
                                           + str(rating_sql_id) + color.ENDC)
-                                except pyodbc.IntegrityError as e:
+                                except pyodbc.IntegrityError:
                                     print("Rating already exists in the SQL DB")
 
                                 # Gets the SQL ID for the last entered row and adds to a list for later user
@@ -197,7 +196,7 @@ def service_function():
                                                    (wine_sql_id, x))
                                     cursor.commit()
                                     print(color.OKGREEN + color.BOLD + "\t\t\tJunction table updated" + color.ENDC)
-                                except pyodbc.IntegrityError as e:
+                                except pyodbc.IntegrityError:
                                     print("This relationship already exists")
                     else:
                         continue
