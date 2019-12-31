@@ -227,6 +227,7 @@ def service_function():
 
                 # Gets status code
                 code = requests.head(address).status_code
+
         except client.HTTPException as e:
             code = requests.head(address).status_code
             if code != 402 or code != 403:
@@ -351,8 +352,9 @@ def service_function():
             with open('page_progress.txt', 'w') as file:
                 file.write(address)
 
+            wines_in_db = collection.count()
             # Gets the latest db entry count
-            print("There are currently", collection.count(), "wines in the MongoDB database.")
+            print("There are currently", wines_in_db, "wines in the MongoDB database.")
 
             # Sets random delay in seconds so as not to overload the server
             seconds = random.randrange(45, 60)
