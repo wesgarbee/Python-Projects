@@ -20,20 +20,19 @@ def service_function():
         with open('page_progress.txt', 'w') as file:
             file.write('https://www.wine.com/list/wine/7155/1')
 
+    # Opens the page progress text file and reads into variable
     with open('page_progress.txt', 'r') as file:
-        data = file.read()
+        address = file.read()
 
-    # Passes the URL read from the save file to address file to be used elsewhere in the script
-    address = data
     # Strips the page number for use later when rebuilding the URL for save after incrementing the page number
     main_url = address.rsplit('/', 1)[0]
     # Increments the page number to scrape
-    page_number = int(data.rsplit('/', 1)[-1])
+    page_number = int(address.rsplit('/', 1)[-1])
 
     req = requests.head(address)
     code = req.status_code
 
-    # Select which db to persist to- commented out to as MongoDB is being deprecated for this task
+    # Select which db to persist to- commented out to as MongoDB is not currently being used for this task
     # print("Select which db to add to")
     # print("1. SQL Server")
     # print("2. MongoDB")
@@ -47,10 +46,10 @@ def service_function():
         try:
             # Connects to local SQL server
             connsql = pyodbc.connect("DRIVER={ODBC Driver 17 for SQL Server};"
-                                     "SERVER=localhost,1401;"
-                                     "DATABASE=Cava_Wine_List;"
-                                     "UID=SA;"
-                                     "PWD=HandleTempDB!;"
+                                     "SERVER=tcp:cava-db-server.database.windows.net,1433;"
+                                     "DATABASE=cava;"
+                                     "UID=wgarbee;"
+                                     "PWD=Swizzle1984wg!;"
                                      "TrustServerCertificate=no;"
                                      "Connection Timeout=120")
             cursor = connsql.cursor()
@@ -101,7 +100,7 @@ def service_function():
                                 for wre in wine_ratings_elements:
                                     rating = wre['title']  # Gets the string of the rating from the element
                                     rater = rating.rsplit(' ', 3)[0].strip()  # Strips the points value
-                                    rating_value = re.search(r'\d+', rating).group()  # Grabs point value from the string
+                                    rating_value = re.search(r'\d+', rating).group()  # Gets pt value from the string
                                     individual_rating = ([rater, rating_value])  # Adds the rater and point to the list
                                     wine_ratings.append(individual_rating)  # Adds rating to list
                         except Exception as e:
@@ -153,7 +152,8 @@ def service_function():
                             wine_sql_id = cursor.fetchone()[0]
 
                             # Prints the inserted ID
-                            print("\t\t\t" + color.OKMAGENTA + str(wine_vintage) + " " + color.OKBLUE + color.BOLD + wine_name + " inserted with SQL id "
+                            print("\t\t\t" + color.OKMAGENTA + str(wine_vintage) + " " + color.OKBLUE +
+                                  color.BOLD + wine_name + " inserted with SQL id "
                                   + color.FAIL + str(wine_sql_id) + color.ENDC)
                             # Increments count of number of entries added to the db
                             added_to_SQL_db += 1
@@ -370,20 +370,20 @@ def service_function():
     #
     # # Intended to add to both dbs
     # # May deprecate
-    else:
-        # TODO
-
-        # Sets random delay in seconds so as not to overload the server
-        seconds = random.randrange(45, 60)
-        if page_number % 3 is 0:
-            seconds += 30
-        print("Paused for", seconds, "seconds.")
-        time.sleep(seconds)
-
-        # Gets status code.
-        code = requests.head(address).status_code
-        if code != 200:
-            print("Status code:", code)
+    # else:
+    #     # TODO
+    #
+    #     # Sets random delay in seconds so as not to overload the server
+    #     seconds = random.randrange(45, 60)
+    #     if page_number % 3 is 0:
+    #         seconds += 30
+    #     print("Paused for", seconds, "seconds.")
+    #     time.sleep(seconds)
+    #
+    #     # Gets status code.
+    #     code = requests.head(address).status_code
+    #     if code != 200:
+    #         print("Status code:", code)
 
 
 service_function()
