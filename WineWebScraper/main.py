@@ -55,6 +55,8 @@ def service_function():
                                      "DATABASE=cava;"
                                      "UID=" + userId + ";"
                                      "PWD=" + password + ";"
+                                     "UID=wgarbee;"
+                                     "PWD=Swizzle1984wg!;"
                                      "TrustServerCertificate=no;"
                                      "Connection Timeout=120")
             cursor = connsql.cursor()
